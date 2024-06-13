@@ -5,6 +5,8 @@
 
 To learn more about this architecture, please refer to [this article](https://bit.ly/community-serverless-rag).
 
+## Demo
+![Application Demo](./assets/fsrag-demo.gif)
 
 ## Prerequisites
 
