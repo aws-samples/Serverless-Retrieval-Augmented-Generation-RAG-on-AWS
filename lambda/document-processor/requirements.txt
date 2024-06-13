@@ -21,7 +21,7 @@ jmespath==1.0.1
 jsonpatch==1.33
 jsonpointer==2.4
 lancedb==0.3.3
-langchain==0.0.337
+langchain==0.2.3
 langsmith==0.0.65
 marshmallow==3.20.1
 multidict==6.0.4
