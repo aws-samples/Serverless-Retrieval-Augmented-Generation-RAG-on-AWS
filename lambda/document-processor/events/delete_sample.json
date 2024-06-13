@@ -1,0 +1,97 @@
+[
+    {
+        "messageId": "de6de5b1-dc00-426b-a597-4350e4283ccd",
+        "receiptHandle": "AQEBZL+T2L77CpWebP0apc/Z97+9HcfnaNcFPTvj+BA+QaRN4NFtE2V3EQTlAIz614KHULXozqBCPRaAZiW4CLghIZl8LDs0L+LbWpMih0ElZe1R6erPVU4gEVUvW3kkRPhr7BM0nEDxuFY35CM5I/J/t3norgr81r2OY2gJkqjVCMdnvqlvjeh3bZclIP5dIPtJedCqFDmwD3hgpWY1cwmQH0fJmV01SG8sfMuaJGfCyo7uo1SQ6PKuC4ZBysLfZTkbn+EYXnYJbE875zzDns9lx41P5uSpEWyPSbpdehTow0LCPDBLjJ+IW/8oVDJswVxgmn0S4ih6ilqkX81eLL7CrbNF6eNYfd1wajTmx5Sn4H/i7FQlUx8wF7TpvPuq/65UTt/WHMc1F4wSC719bALDpQgluaNqhBwPinUhTjrjp2SQvZMojyKH52MRvDdm+SvpI/nZKH6yJmBUToOqgBExrg==",
+        "body": "{"Records": [
+            {
+                "eventVersion": "2.1",
+                "eventSource": "aws:s3",
+                "awsRegion": "us-west-2",
+                "eventTime": "2024-05-31T20:06:49.158Z",
+                "eventName": "ObjectRemoved:DeleteMarkerCreated",
+                "userIdentity": {
+                    "principalId": "REDACTED"
+                },
+                "requestParameters": {
+                    "sourceIPAddress": "REDACTED"
+                },
+                "responseElements": {
+                    "x-amz-request-id": "SDCPHKERK84HPW5S",
+                    "x-amz-id-2": "REDACTED"
+                },
+                "s3": {
+                    "s3SchemaVersion": "1.0",
+                    "configurationId": "YjVmNThhYmMtMGU2Yy00MDFhLWI3NDMtYTdmYTAxOGQwZDE2",
+                    "bucket": {
+                        "name": "lancedbragstack-documentsbucket-REDACTED",
+                        "ownerIdentity": {
+                            "principalId": "REDACTED"
+                        },
+                        "arn": "arn:aws:s3:::lancedbragstack-documentsbucket-REDACTED"
+                    },
+                    "object": {
+                        "key": "private/us-west-2%3A14b3a170-21cd-c6a1-e35f-0c07b0e0276f/Invoice-32EE7109-0011.pdf",
+                        "eTag": "d41d8cd98f00b204e9800998ecf8427e",
+                        "versionId": "27327IvvhGVCagBZcV4r8gNpugX6ovtj",
+                        "sequencer": "00665A2DD92650005A"
+                    }
+                }
+            }
+        ]
+    }", "attributes": { "ApproximateReceiveCount": "1", "SentTimestamp": "1717210677137", "SenderId": "AROARJM5BOAQXFHQL577H:gbatt-Isengard", "ApproximateFirstReceiveTimestamp": "1717210677257"
+},
+"messageAttributes": {},
+"md5OfBody": "96f201116e2c4d3d3ac2b948bde95dbd",
+"eventSource": "aws:sqs",
+"eventSourceARN": "arn:aws:sqs:us-west-2: 088913047585:LanceDbRagStack-DocumentProcessingQueueB731B00D-KuCaUdx32n7V",
+"awsRegion": "us-west-2"
+},
+{
+"messageId": "7770c582-5517-4774-bf62-b3b7179d5d25",
+"receiptHandle": "AQEBy69ydz07tUmKB+7Gj0EPiR0DTLtbsegX6UinzPRoUaj44DIhAQTb7aHFQBv9K5fuz0htz4IUt1Nk+hb4tkVWa7ccNyWG3gopq25M2A7jKy4bx9JUMsxZdseN/9/yuCf1iHr2NGXa/NfdQtngd64I5RVxHRJIeEnJD9sQe9NWT7kHwdqiziQeWy8nam0KU4t/SYld1zNt6gj65/cEx28j4DqRxCI1BCcvDDxoubG5eyQ+YlUl3mpRWg80/DZCG+b1WgcZV3KrR5WB/1V96LtCyzStUp9vhIFg4wylkUqxEJE1QxwweV/OS2cj+0UDqUOGu1Z8EVoQYDRTNg6rFhJAsyMRQ2knZowtoi1uFAyu0WuVdDp7TdNX4UVjCnT9hZpCz6wLfQEbhYtS3cvyWZo5Uy6K9hbAPrJBCDKYi8iN1Bb9e6REgGsOPSDeTqErLZnJMFbkMvWXddBwSdGc34urzg==",
+"body": "{"Records": [
+    {
+        "eventVersion": "2.1",
+        "eventSource": "aws:s3",
+        "awsRegion": "us-west-2",
+        "eventTime": "2024-05-31T20:02:56.050Z",
+        "eventName": "ObjectRemoved:DeleteMarkerCreated",
+        "userIdentity": {
+            "principalId": "REDACTED"
+        },
+        "requestParameters": {
+            "sourceIPAddress": "REDACTED"
+        },
+        "responseElements": {
+            "x-amz-request-id": "MWDCBZ46Y0R3FP96",
+            "x-amz-id-2": "REDACTED"
+        },
+        "s3": {
+            "s3SchemaVersion": "1.0",
+            "configurationId": "YjVmNThhYmMtMGU2Yy00MDFhLWI3NDMtYTdmYTAxOGQwZDE2",
+            "bucket": {
+                "name": "lancedbragstack-documentsbucket-REDACTED",
+                "ownerIdentity": {
+                    "principalId": "REDACTED"
+                },
+                "arn": "arn:aws:s3:::lancedbragstack-documentsbucket-REDACTED"
+            },
+            "object": {
+                "key": "private/us-west-2%3A14b3a170-21cd-c6a1-e35f-0c07b0e0276f/Invoice-28222620240509-7-5yelp.pdf",
+                "eTag": "d41d8cd98f00b204e9800998ecf8427e",
+                "versionId": ".4R25.1aoCYCtkZqiTFEFdWXQp_QxFwk",
+                "sequencer": "00665A2CF00BD0AC1A"
+            }
+        }
+    }
+]
+}", "attributes": { "ApproximateReceiveCount": "1", "SentTimestamp": "1717210677155", "SenderId": "AROARJM5BOAQXFHQL577H:gbatt-Isengard", "ApproximateFirstReceiveTimestamp": "1717210677257"
+},
+"messageAttributes": {},
+"md5OfBody": "6ef377ca5a943d97b962a1da104b3f28",
+"eventSource": "aws:sqs",
+"eventSourceARN": "arn:aws:sqs:us-west-2: 088913047585:LanceDbRagStack-DocumentProcessingQueueB731B00D-KuCaUdx32n7V",
+"awsRegion": "us-west-2"
+}
+]
+}

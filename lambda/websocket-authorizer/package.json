@@ -1,0 +1,18 @@
+{
+  "name": "ws-authorizer",
+  "version": "1.0.0",
+  "description": "a websocket authorizer",
+  "main": "index.js",
+  "keywords": [
+    "websockets",
+    "aws",
+    "apigateway",
+    "origin",
+    "authorizer"
+  ],
+  "author": "gbatt@amazon.com",
+  "license": "ISC",
+  "dependencies": {
+    "aws-jwt-verify": "^4.0.1"
+  }
+}

@@ -1,0 +1,71 @@
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+}
+
+
+::placeholder {
+   text-align: center; 
+   color: var(--amplify-colors-blue-20);
+}
+
+#searchQuery {
+  width: 75vw;
+  color:white;
+}
+
+.amplify-storagemanager {
+  width: 75vw;
+  background-color: var( --amplify-colors-neutral-40 );
+}
+
+.amplify-storagemanager__dropzone {
+  background-color: var( --amplify-colors-neutral-40 );
+}
+
+/*.amplify-storagemanager__dropzone, .amplify-storagemanager__loader , .amplify-storagemanager__file__image, .amplify-storagemanager__file__picker{*/
+/*     background-color:#FFFFFF99;*/
+/* }*/
+ 
+ .qa_container{
+   width: 75vw;
+ }
+ 
+ .amplify-button {
+  --amplify-internal-button-background-color: var( --amplify-colors-blue-60 );
+  --amplify-internal-button-border-color: var( --amplify-colors-blue-20);
+  --amplify-internal-button-color: var( --amplify-colors-blue-10 );
+}
+ .amplify-button:hover {
+  --amplify-internal-button-background-color: var( --amplify-colors-blue-80 );
+  --amplify-internal-button-border-color: var( --amplify-colors-blue-80);
+  --amplify-internal-button-color: var( --amplify-colors-blue-20 );
+}
+ .amplify-button:active, .amplify-button:focus  {
+  --amplify-internal-button-background-color: var( --amplify-colors-blue-80 );
+  --amplify-internal-button-border-color: var( --amplify-colors-blue-80);
+  --amplify-internal-button-color: var( --amplify-colors-blue-20 );
+}
+
+.amplify-label {
+  color: var(--amplify-colors-neutral-40)
+}
+
+.amplify-storagemanager{
+  width: 25vw;
+}
+
+p.amplify-text.amplify-storagemanager__previewer__text{
+  text-align: center;
+}

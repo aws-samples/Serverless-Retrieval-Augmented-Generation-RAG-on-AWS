@@ -1,0 +1,11 @@
+{
+  "name": "websocket-handler",
+  "version": "1.0.0",
+  "description": "This AWS Lambda function handles WebSocket connections and messages, integrating with Amazon API Gateway to manage connections and send messages. It supports different message types and routes.",
+  "main": "index.mjs",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}

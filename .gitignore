@@ -236,3 +236,16 @@ terraform.rc
 *.idea%  
 embeddings/
 docs/
+
+
+*.js
+!jest.config.js
+*.d.ts
+node_modules
+!resources/ui/src/components/helpers.js
+!resources/ui/src/static/**/*.js
+
+
+# CDK asset staging directory
+.cdk.staging
+cdk.out

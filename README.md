@@ -1,72 +1,134 @@
-# Streaming Serverless Retrieval Augmented Generation (RAG) with Amazon Bedrock, Lambda, and S3
+# Full Stack Serverless Retrieval Augmented Generation Application on AWS
+## Architecture
 
-This repo demonstates an implementation of streaming Retrieval Augmented Generation, making usage of Bedrock, Lambda Function URLs, and LanceDB embedding store backed by S3.
+![Overall architecture diagram](./assets/architecture.png)
+
+To learn more about this architecture, please refer to [this article](https://bit.ly/community-serverless-rag).
 
 
-Important: this application uses various AWS services and there are costs associated with these services after the Free Tier usage - please see the [AWS Pricing page](https://aws.amazon.com/pricing/) for details. You are responsible for any AWS costs incurred. No warranty is implied in this example.
+## Prerequisites
 
-## Requirements
+- NodeJS >= v18.18.2
+- Docker
+- AWS Cloud Development Kit (CDK) cli >= 2.142.1
 
-* [Create an AWS account](https://portal.aws.amazon.com/gp/aws/developer/registration/index.html) if you do not already have one and log in. The IAM user that you use must have sufficient permissions to make necessary AWS service calls and manage AWS resources.
-* [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html) installed and configured
-* [Git Installed](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
-* [AWS Serverless Application Model](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html) (AWS SAM) installed
-* [Docker Installed and Running](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/install-docker.html)
+## Installation
 
-## Deployment Instructions
+```sh
+nvm use # makes use of node 18
+npm install
+```
 
-1. Create a new directory, navigate to that directory in a terminal and clone the GitHub repository:
-    ``` 
-    git clone https://github.com/shafkevi/lambda-bedrock-s3-streaming-rag
-    ```
-1. Change directory to the pattern directory:
-    ```
-    cd lambda-bedrock-s3-streaming-rag
-    ```
-1. From the command line, use AWS SAM to deploy the AWS resources for the pattern as specified in the template.yml file:
-    ```
-    sam build -u
-    sam deploy --guided
-    ```
-1. During the prompts:
-    * Enter a stack name
-    * Enter the desired AWS Region
-    * Allow SAM CLI to create IAM roles with the required permissions.
+### Deploy
 
-    Once you have run `sam deploy --guided` mode once and saved arguments to a configuration file (samconfig.toml), you can use `sam deploy` in future to use these defaults.
+* For greater access to LLMs (at the time of writing), deploy the stack in the `us-west-2` region.
 
-1. Note your stack name and outputs from the SAM deployment process. These contain the resource names and/or ARNs which are used for testing.
+```sh
+cdk deploy
+```
 
-## How it works
-![high level diagram](./assets/StreamingServerlessRAG.png)
+You should have a list of outputs in your console, similar to the following
 
-With this pattern we want to showcase how to implement a streaming serverless Retrieval Augmented Generation (RAG) architecture.  
-Customers asked for a way to quickly test RAG capabilities on a small number of documents without managing infrastructure for contextual knowledge and non-parametric memory.  
-In this pattern, we run a RAG workflow in a single Lambda function, so that customers only pay for the infrastructure they use, when they use it.  
-We use [LanceDB](https://lancedb.com/) with Amazon S3 as backend for embedding storage.  
-This pattern deploys one Lambda function and an S3 Bucket where to store your embeddings.  
-This pattern makes use of Bedrock to calculate embeddings with Amazon Titan Embedding and any Amazon Bedrock chat model as prediction LLM. 
-The responses are streamed using Lambda URL function streaming for a quicker time to first byte and a better user experience.
-We also provide a local pipeline to ingest your PDFs and upload them to S3.
+```bash
+Outputs:
+LanceDbRagStack.FrontendConfigS3Path = s3://lancedbragstack-frontendbucketxxxxx-xxxx/appconfig.json
+LanceDbRagStack.WebDistributionName = https://dxxxxxxxxxx.cloudfront.net
+LanceDbRagStack.allowUnauthenticatedIdentities = true
+LanceDbRagStack.authRegion = us-west-2
+LanceDbRagStack.identityPoolId = us-west-2:xxxxxxxxxxxxxx
+LanceDbRagStack.passwordPolicyMinLength = 8
+LanceDbRagStack.passwordPolicyRequirements = ["REQUIRES_NUMBERS","REQUIRES_LOWERCASE","REQUIRES_UPPERCASE","REQUIRES_SYMBOLS"]
+LanceDbRagStack.signupAttributes = ["email"]
+LanceDbRagStack.userPoolId = us-west-2_xxxxxxxxxx
+LanceDbRagStack.usernameAttributes = ["email"]
+LanceDbRagStack.verificationMechanisms = ["email"]
+LanceDbRagStack.webClientId = xxxxxxxxxxxxx
+Stack ARN:
+arn:aws:cloudformation:us-west-2:ACCOUNT_NUMBER:stack/LanceDbRagStack/XXXXXXXXXXXXXXXXXXXX
+```
 
-The permissions defined in [template.yaml](./template.yaml) restrict model access to just the titan, claude, and mistral models, but you can update this to use other models as you wish.
+### Test
+You'll find the URL of your application as the stack output named `LanceDbRagStack.WebDistributionName`.  
+It looks something like `https://dxxxxxxxxxxx.cloudfront.net`
 
-![Full architecture](./assets/full-architecture.png)
+## Running locally
 
-## Ingest Documents
-Once your stack has been deployed, you can ingest PDF documents by following the instructions in [`./data-pipeline/README.md`](./data-pipeline/README.md)
+You can run this vite react app locally following these steps.
 
-## Testing
-Once your stack has been deployed and you have loaded in your documents, follow the testing instructions in [`./testing/README.md`](./testing/README.md)
+### 1. Deploy infrastructure to AWS
 
-## Cleanup
- 
-1. Delete the stack
-    ```bash
-    sam delete
-    ```
+Follow [instructions above](#installation) to deploy the cdk app.
 
-----
-Copyright 2023 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+### 2. Obtain environment configuration
 
-SPDX-License-Identifier: MIT-0
+Run the script 
+```bash
+./fetch-frontend-config.sh LanceDbRagStack
+```
+
+This will copy the file `appconfig.json` into `./resources/ui/public/` from the bucket where the front-end is hosted.  
+This is all public information that the front-end application uses to interact with the backend.  
+You can modify it to point it to an alternative backend stack for development purposes.
+
+Alternatively, run the following command and replace the placeholders with values taken from the stack's output
+
+```bash
+aws s3 cp ${LanceDbRagStack.FrontendConfigS3Path} ./resources/ui/public/
+```
+
+#### Example Configuration File
+```json
+{
+    "inferenceURL": "https://xxxxxxxxxxxxx.lambda-url.us-west-2.on.aws/",
+    "websocketURL": "wss://xxxxxxxxxx.execute-api.us-west-2.amazonaws.com/Prod",
+    "websocketStateTable": "LanceDbRagStack-websocketStateTable-xxxxxxxx",
+    "region": "us-west-2",
+    "bucketName": "lancedbragstack-documentsbucket-xxxxxxxxx",
+    "auth": {
+        "user_pool_id": "us-west-2_XXXXXXXXXX",
+        "aws_region": "us-west-2",
+        "user_pool_client_id": "XXXXXXXXXX",
+        "identity_pool_id": "us-west-2:XXXXX-XXXX-XXXXXX",
+        "standard_required_attributes": [
+            "email"
+        ],
+        "username_attributes": [
+            "email"
+        ],
+        "user_verification_types": [
+            "email"
+        ],
+        "password_policy": {
+            "min_length": 8,
+            "require_numbers": true,
+            "require_lowercase": true,
+            "require_uppercase": true,
+            "require_symbols": true
+        },
+        "unauthenticated_identities_enabled": true
+    },
+    "version": "1",
+    "storage": {
+        "bucket_name": "lancedbragstack-documentsbucket-XXXXXXXXXXX",
+        "aws_region": "us-west-2"
+    }
+}
+```
+
+### 3. Run local dev server
+
+```sh
+cd resources/ui
+npm run dev
+```
+
+## Authors
+
+**Giuseppe Battista** is a Senior Solutions Architect at Amazon Web Services. He leads soultions architecture for Early Stage Startups in UK and Ireland. He hosts the Twitch Show "Let's Build a Startup" on [twitch.tv/aws](https://bit.ly/basup-twitch) and he's head of Unicorn's Den accelerator.   
+Follow Giuseppe on [LinkedIn](https://bit.ly/43l7eEb)  
+
+**Kevin Shaffer-Morrison** is a Senior Solutions Architect at Amazon Web Services. He's helped hundreds of startups get off the ground quickly and up into the cloud. Kevin focuses on helping the earliest stage of founders with code samples and Twitch live streams.  
+Follow Kevin on [LinkedIn](https://www.linkedin.com/in/kshaffermorrison)
+
+**Anthony Bernabeu** is a Senior IoT Prototyping Architect at Amazon Web Services. He builds, jointly with customers, the most exciting and innovative IoT and Generative Ai prototypes on AWS.  
+Follow Anthony on [LinkedIn](https://bit.ly/4ehuyrg)
