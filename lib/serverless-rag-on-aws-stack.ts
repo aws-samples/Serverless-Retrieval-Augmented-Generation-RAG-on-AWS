@@ -153,6 +153,30 @@ export class ServerlessRagOnAws extends Stack {
       ],
     });
 
+    const invalidateLambda = new lambda.Function(this, 'InvalidateLambda', {
+      runtime: lambda.Runtime.NODEJS_20_X,
+      handler: 'index.handler',
+      code: lambda.Code.fromAsset('lambda/frontend-invalidation/'),
+      environment: {
+          DISTRIBUTION_ID: webDistribution.distributionId
+      },
+      timeout: Duration.seconds(300),
+    });
+
+    const distributionArn = `arn:aws:cloudfront::${this.account}:distribution/${webDistribution.distributionId}`;
+
+
+    // Grant the Lambda function permission to invalidate CloudFront distributions
+    invalidateLambda.addToRolePolicy(new iam.PolicyStatement({
+        actions: ['cloudfront:CreateInvalidation'],
+        resources: [distributionArn], // Consider restricting this to specific resources
+    }));
+
+    // Add the S3 event notification to trigger the Lambda function on index.html update
+    frontendBucket.addEventNotification(s3.EventType.OBJECT_CREATED, new s3Notifications.LambdaDestination(invalidateLambda), {
+        prefix: 'index.html',
+    });
+
     // Update the S3 bucket policy to allow access only from the OAI
     frontendBucket.addToResourcePolicy(new iam.PolicyStatement({
       actions: ['s3:GetObject'],
@@ -565,7 +589,11 @@ export class ServerlessRagOnAws extends Stack {
     new CfnOutput(this, "WebDistributionName", {
       value: `https://${webDistribution.distributionDomainName}`,
     });
-    
+
+    new CfnOutput(this, "FrontendConfigS3Path", {
+      value: `s3://${frontendBucket.bucketName}/appconfig.json`,
+    });
+
   }
 
   private addLambdaPermission(id: string, func: lambda.Function, api: apigw.WebSocketApi, routeKey: string) {

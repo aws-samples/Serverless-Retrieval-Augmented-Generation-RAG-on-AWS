@@ -1,9 +1,9 @@
 // import * as cdk from 'aws-cdk-lib';
 // import { Template } from 'aws-cdk-lib/assertions';
-// import * as ServerlessRagOnAws from '../lib/serverless-rag-on-aws-stack';
+// import * as LanceDbRag from '../lib/lance_db-rag-stack';
 
 // example test. To run these tests, uncomment this file along with the
-// example resource in lib/serverless-rag-on-aws-stack.ts
+// example resource in lib/lance_db-rag-stack.ts
 test('SQS Queue Created', () => {
 //   const app = new cdk.App();
 //     // WHEN
