@@ -7,10 +7,12 @@ import { StringOutputParser } from "@langchain/core/output_parsers";
 import { RunnableSequence, RunnablePassthrough } from "@langchain/core/runnables";
 import { formatDocumentsAsString } from "langchain/util/document";
 import { CognitoIdentityClient, GetIdCommand } from "@aws-sdk/client-cognito-identity";
+import { SSMClient, GetParameterCommand } from "@aws-sdk/client-ssm";
 import jwt from "jsonwebtoken";
 
 const lanceDbSrc = process.env.s3BucketName;
 const awsRegion = process.env.region;
+const stackName = process.env.stackName;
 
 const runChain = async ({identityId, query, model, streamingFormat}, responseStream) => {
     const db = await connect(`s3://${lanceDbSrc}/embeddings/${identityId}`);
@@ -25,34 +27,21 @@ const runChain = async ({identityId, query, model, streamingFormat}, responseStr
     const vectorStore = new LanceDB(embeddings, {table});
     const retriever = vectorStore.asRetriever();
 
-    const promptHeader = `
-    Your goal is to answer the question provided in the following question block
-    <question>
-    {question}
-    </question>
-    Important instructions:
-    You always answer the question with markdown formatting and nothing else. 
-    You will be penalized if you do not answer with markdown when it would be possible.
-    The markdown formatting you support: headings, bold, italic, links, tables, lists, code blocks, and blockquotes.
-    You do not support html in markdown. You will be penalized if you use html tags.
-    You do not support images and never include images. You will be penalized if you render images.
-    It's important you always admit if you don't know something.
-    Do not make anything up.
-    Do not answer with anything other than the markdown output.
-    `
+    const ssmClient = new SSMClient({region:awsRegion});
 
-    const noContextFooter = `
-    Unfortunately no context was retrieved for this query. You should answer to the best of your capabilites,
-    but you should warn the user that no context was found. In your response, suggest the user to upload documents
-    so that you can relply with a factual answer.`;
-
-    const contextFooter = `
-    Base your answers on the context provided in the following context block.
-    Do not answer with anything other than the markdown output, 
-    and do not include the <question> or <context> within your answer and do not make up your own markdown elements. 
-    <context>
-    {context}
-    </context>`;
+    let promptHeader, noContextFooter, contextFooter;
+    try {
+        [promptHeader, noContextFooter, contextFooter] = await Promise.all([
+            getSSMParameter(ssmClient, 'promptHeader'),
+            getSSMParameter(ssmClient, 'noContextFooter'),
+            getSSMParameter(ssmClient, 'contextFooter'),
+        ]);
+    } catch (error) {
+        console.error('An error occurred while fetching SSM parameters:', error);
+        responseStream.write(`An error occurred while fetching prompts from SSM parameters.\n ${e.message}`);
+        responseStream.end();
+        return;
+    }
 
     // const prompt = PromptTemplate.fromTemplate(`
     //     Your goal is to answer the question provided in the following question block
@@ -216,6 +205,13 @@ const parseIdToken = async (event) => {
             }),
         };
     }
+};
+
+const getSSMParameter = async (ssmClient, name) => {
+    const defaultParameterKey = `/${stackName}/default/${name}`;
+    const command = new GetParameterCommand({ Name: defaultParameterKey, WithDecryption: true });
+    const response = await ssmClient.send(command);
+    return response.Parameter.Value;
 };
 
 export const handler = awslambda.streamifyResponse(async (event, responseStream, _context) => {

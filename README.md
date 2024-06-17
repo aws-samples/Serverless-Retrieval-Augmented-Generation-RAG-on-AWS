@@ -124,6 +124,21 @@ cd resources/ui
 npm run dev
 ```
 
+### Changing the Default Prompt Dynamically
+
+To change the default prompt dynamically, follow these steps:
+
+1. Open the [`prompt-templates.yml`](https://github.com/aws-samples/Serverless-Retrieval-Augmented-Generation-RAG-on-AWS/blob/main/lib/prompt-templates.yml) file.
+2. Update the prompt templates as per your requirements.
+3. Save the changes.
+4. Run the [`update-default-prompt-templates.ts`](https://github.com/aws-samples/Serverless-Retrieval-Augmented-Generation-RAG-on-AWS/blob/main/update-default-prompt-templates.ts) script using the following command:
+
+```sh
+npx ts-node update-default-prompt-templates.ts
+```
+
+**WARNING:** Depending on your setup, you may need to change the region or profile in the script or pass it through the environment variables.
+
 ## Authors
 
 **Giuseppe Battista** is a Senior Solutions Architect at Amazon Web Services. He leads soultions architecture for Early Stage Startups in UK and Ireland. He hosts the Twitch Show "Let's Build a Startup" on [twitch.tv/aws](https://bit.ly/basup-twitch) and he's head of Unicorn's Den accelerator.   
@@ -134,3 +149,8 @@ Follow Kevin on [LinkedIn](https://www.linkedin.com/in/kshaffermorrison)
 
 **Anthony Bernabeu** is a Senior IoT Prototyping Architect at Amazon Web Services. He builds, jointly with customers, the most exciting and innovative IoT and Generative Ai prototypes on AWS.  
 Follow Anthony on [LinkedIn](https://bit.ly/4ehuyrg)
+
+## Contributors
+
+**Kirtan Dudhatra** is a software engineer at AWS, working on the Step Functions service. He has a strong background in distributed systems and cloud computing, and are passionate about solving complex problems and delivering high-quality software solutions.    
+Follow Kirtan on [LinkedIn](www.linkedin.com/in/kirtandudhatra)
