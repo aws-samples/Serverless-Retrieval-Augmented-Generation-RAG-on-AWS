@@ -53,6 +53,11 @@ arn:aws:cloudformation:us-west-2:ACCOUNT_NUMBER:stack/LanceDbRagStack/XXXXXXXXXX
 You'll find the URL of your application as the stack output named `LanceDbRagStack.WebDistributionName`.  
 It looks something like `https://dxxxxxxxxxxx.cloudfront.net`
 
+### Dynamic Prompt Management
+
+Users can override the default system prompt by specifying new prompts in the settings.
+![Dynamic Prompt Management via Front-end application](assets/fsrag-dynamic-prompting.gif)
+
 ## Running locally
 
 You can run this vite react app locally following these steps.
