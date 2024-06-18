@@ -244,7 +244,7 @@ export function QAManager({ inferenceURL, creds, region, appConfig }) {
           />
         </FormField>
         { 
-          systemPrompt.isModified 
+          systemPrompt?.isModified 
             && 
           <span> 
             You have modified the system prompt. You can switch back to the default prompt by navigating to <Link onFollow={() => navigate("/Settings")}>Settings</Link>
