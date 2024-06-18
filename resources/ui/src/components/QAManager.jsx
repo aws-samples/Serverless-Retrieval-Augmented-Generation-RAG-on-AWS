@@ -50,12 +50,13 @@ export function QAManager({ inferenceURL, creds, region, appConfig }) {
       if (parsedPrompt.some(item => item.isChecked)) {
         return {
           isModified: true,
-          ... parsedPrompt
+          values: parsedPrompt
         }
 
       }
       return {
         isModified: false,
+        values:[]
       }
     }
   });
@@ -100,6 +101,18 @@ export function QAManager({ inferenceURL, creds, region, appConfig }) {
     }
   };
 
+  const getPromptOverrideObject = (systemPromptState) =>{
+    console.log("getPromptOverrideObject");
+    console.log(systemPromptState);
+    const override = {};
+    for (const prompt of systemPromptState.values){
+      if(prompt.isChecked){
+        override[prompt.name.split("/").pop()] = prompt.userInput;
+      }
+    }
+    return override;
+  }
+
   const getData = async (streaming = true) => {
     clearResponse();
     setSearching(true);
@@ -120,9 +133,11 @@ export function QAManager({ inferenceURL, creds, region, appConfig }) {
       apiUrl = new URL(inferenceURL);
     }
 
+    const promptOverride = getPromptOverrideObject(systemPrompt);
+
     const requestBody = {
       query: searchQuery,
-      systemPrompt,
+      promptOverride,
       strategy: "rag",
       model: model,
       idToken: creds.idToken.toString()

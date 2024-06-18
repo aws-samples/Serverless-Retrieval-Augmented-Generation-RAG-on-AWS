@@ -22,9 +22,9 @@ function Settings({ signOut, user, appConfig }) {
     });
 
     const parameterPaths = [
-        `/${stackName}/default/prompts/contextFooter`,
-        `/${stackName}/default/prompts/noContextFooter`,
-        `/${stackName}/default/prompts/promptHeader`,
+        `/${stackName}/default/contextFooter`,
+        `/${stackName}/default/noContextFooter`,
+        `/${stackName}/default/promptHeader`,
     ];
 
     // Getting STS credentials for user
