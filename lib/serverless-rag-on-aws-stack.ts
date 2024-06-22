@@ -142,6 +142,12 @@ export class ServerlessRagOnAws extends Stack {
     const webDistribution = new cloudfront.CloudFrontWebDistribution(this, 'WebDistribution', {
       viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
       defaultRootObject: 'index.html',
+      errorConfigurations:[{
+        // redirecting 403 to index.html as we're making use of react router
+          errorCode: 403,
+          responsePagePath: '/index.html',
+          responseCode: 200,
+      }],
       originConfigs: [
         {
           s3OriginSource: {
