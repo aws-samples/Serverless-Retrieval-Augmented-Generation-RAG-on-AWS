@@ -57,9 +57,6 @@ export class ServerlessRagOnAws extends Stack {
       },
     });
 
-    // INFO: we discussed about making this an s3 express bucket
-    // but it would have introduced too many non serverless components
-    // such as VPC, ENI, dealing with AZs and subnets. Out of scope for now
     const lanceDbVectorBucket = new s3.Bucket(this, "LanceDBVectorBucket", {
       versioned: true,
       encryption: s3.BucketEncryption.S3_MANAGED,
@@ -418,6 +415,25 @@ export class ServerlessRagOnAws extends Stack {
             ],
             resources: ["*"]
           })
+        ]
+      })
+    );
+
+    frontendAuth.resources.authenticatedUserIamRole.attachInlinePolicy(
+      new iam.Policy(this, 'authenticatedUserIamRolePolicy-ssm', {
+        statements: [
+          new iam.PolicyStatement({
+            actions: [
+              'ssm:GetParameter',
+              'ssm:GetParameters',
+              'ssm:GetParameterHistory',
+              'ssm:GetParametersByPath'
+            ],
+            resources: [
+              `arn:aws:ssm:${this.region}:${this.account}:parameter/${this.stackName}/default*`,
+              `arn:aws:ssm:${this.region}:${this.account}:parameter/${this.stackName}/` + "${cognito-identity.amazonaws.com:sub}*",
+            ]
+      })
         ]
       })
     );
