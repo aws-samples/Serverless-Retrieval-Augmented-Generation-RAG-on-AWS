@@ -28,7 +28,6 @@ multidict==6.0.4
 mypy-extensions==1.0.0
 numpy==1.26.2
 packaging==23.2
-py==1.11.0
 pyarrow==14.0.1
 pydantic==2.5.1
 pydantic_core==2.14.3
