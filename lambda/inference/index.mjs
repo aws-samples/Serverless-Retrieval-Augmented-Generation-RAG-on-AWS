@@ -13,6 +13,7 @@ import jwt from "jsonwebtoken";
 const lanceDbSrc = process.env.s3BucketName;
 const awsRegion = process.env.region;
 const stackName = process.env.stackName;
+const embeddingModel = process.env.EMBEDDING_MODEL;
 
 const runChain = async ({identityId, query, model, streamingFormat, promptOverride}, responseStream) => {
 
@@ -22,7 +23,7 @@ const runChain = async ({identityId, query, model, streamingFormat, promptOverri
     
         db = await connect(`s3://${lanceDbSrc}/embeddings/${identityId}`);
         table = await db.openTable(identityId);
-        embeddings = new BedrockEmbeddings({region:awsRegion});
+        embeddings = new BedrockEmbeddings({region:awsRegion, model:embeddingModel});
         vectorStore = new LanceDB(embeddings, {table});
         retriever = vectorStore.asRetriever();
 
