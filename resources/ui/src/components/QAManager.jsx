@@ -274,7 +274,7 @@ export function QAManager({ inferenceURL, creds, region, appConfig }) {
                     PreTag="div"
                     children={String(children).replace(/\n$/, '')}
                     language={match[1]}
-                    style={darkMode ? darkMarkdown : lightMarkdown}
+                    style={darkMarkdown}
                   />
                 ) : (
                   <code {...rest} className={className}>
