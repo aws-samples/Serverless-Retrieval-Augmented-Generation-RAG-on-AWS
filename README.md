@@ -53,6 +53,37 @@ arn:aws:cloudformation:us-west-2:ACCOUNT_NUMBER:stack/LanceDbRagStack/XXXXXXXXXX
 You'll find the URL of your application as the stack output named `LanceDbRagStack.WebDistributionName`.  
 It looks something like `https://dxxxxxxxxxxx.cloudfront.net`
 
+## Supported Regions
+This sample only supports regions where Bedrock is available and at least one Embedding model is present. As of July 2024, this sample supports
+```
+us-east-1
+us-east-2
+us-west-2
+eu-central-1
+eu-west-2
+eu-west-3
+ap-south-1
+ap-southeast-2
+ap-northeast-1   
+ca-central-1
+sa-east-1
+```
+
+You can switch the default embedding model by changing the config file at `lib/llm-config.json`.  
+Once the sample is deployed you should NOT switch the embedding model. Changing it may lead to errors or unexpected results in your semantic search.
+
+### Sample Configuration
+```json
+{
+    "us-west-2":{
+        "embedding":{
+            "model":"amazon.titan-embed-text-v1",
+            "size":1536
+        }
+    },
+...
+}
+```
 ### Dynamic Prompt Management
 
 Users can override the default system prompt by specifying new prompts in the settings.
