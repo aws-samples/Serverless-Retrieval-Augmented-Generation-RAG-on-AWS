@@ -34,14 +34,23 @@ import { Utils } from "./utils";
 import * as fs from 'fs';
 import * as yaml from 'js-yaml';
 
-const pythonRuntime = lambda.Runtime.PYTHON_3_11;
 const lambdaArchitecture = lambda.Architecture.X86_64;
 
+interface EmbeddingProps {
+  model: string;
+  size: number;
+}
+
+export interface ServerlessRagOnAwsProps extends StackProps {
+  embedding: EmbeddingProps;
+}
 
 export class ServerlessRagOnAws extends Stack {
 
-  constructor(scope: Construct, id: string, props?: StackProps) {
+  constructor(scope: Construct, id: string, props: ServerlessRagOnAwsProps) {
     super(scope, id, props);
+
+    const {embedding} = props;
 
     // BACKEND
 
@@ -211,7 +220,6 @@ export class ServerlessRagOnAws extends Stack {
 
     const userPoolId = frontendAuth.resources.userPool.userPoolId;
     const userPoolClientId = frontendAuth.resources.userPoolClient.userPoolClientId;
-    const identityPoolAuthenticatedRole = frontendAuth.resources.authenticatedUserIamRole;
     const identityPoolId = frontendAuth.resources.cfnResources.cfnIdentityPool.ref;
 
      // WebSocket Stack
@@ -294,9 +302,6 @@ export class ServerlessRagOnAws extends Stack {
     const whoamiIntegration = new integrations.WebSocketLambdaIntegration('WhoamiIntegration', webSocketLambda);
 
     // Create the authorizer
-    // INFO: the authentication strategy for the authorizer is to check the Origin header
-    // Not the best from security perspective. If we want to harden this, we should probably
-    // look into IAM authentication, given we have a Cognito users
     const authorizer = new apigwAuth.WebSocketLambdaAuthorizer('WebsocketAuhtorizer', authorizerFunction, {
       identitySource: ['route.request.multivalueheader.Origin']
     });
@@ -348,7 +353,9 @@ export class ServerlessRagOnAws extends Stack {
         SQS_QUEUE_URL: queue.queueUrl,
         DYNAMODB_DOCUMENT_REGISTRY_TABLE: documentRegistryTable.tableName,
         DYNAMODB_MD5_BY_S3_PATH_INDEX: documentRegistryTableIndexOnS3Path,
-        LANCEDB_BUCKET: lanceDbVectorBucket.bucketName
+        LANCEDB_BUCKET: lanceDbVectorBucket.bucketName,
+        EMBEDDING_MODEL: embedding.model,
+        EMBEDDING_SIZE: `${embedding.size}`,
       },
     });
 
@@ -460,7 +467,9 @@ export class ServerlessRagOnAws extends Stack {
         stackName: this.stackName,
         LANGCHAIN_VERBOSE: 'true',
         USER_POOL_ID: frontendAuth.resources.userPool.userPoolId,
-        IDENTITY_POOL_ID: frontendAuth.resources.cfnResources.cfnIdentityPool.ref
+        IDENTITY_POOL_ID: frontendAuth.resources.cfnResources.cfnIdentityPool.ref,
+        EMBEDDING_MODEL: embedding.model,
+        EMBEDDING_SIZE: `${embedding.size}`
       }
     });
 
@@ -474,6 +483,7 @@ export class ServerlessRagOnAws extends Stack {
       ],
       resources: ['*'],
     }));
+    
     // Grant necessary permissions to the Lambda Processor function to invoke Bedrock
     lambdaDocumentProcessorFunction_Docker.addToRolePolicy(new iam.PolicyStatement({
       effect: iam.Effect.ALLOW,

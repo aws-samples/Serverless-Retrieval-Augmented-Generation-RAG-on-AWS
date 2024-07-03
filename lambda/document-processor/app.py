@@ -20,6 +20,8 @@ SQS_QUEUE_URL = os.environ.get('SQS_QUEUE_URL')
 DOCUMENT_REGISTRY_TABLE = os.environ.get('DYNAMODB_DOCUMENT_REGISTRY_TABLE')
 MD5_BY_S3_PATH_INDEX = os.environ.get('DYNAMODB_MD5_BY_S3_PATH_INDEX')
 LANCEDB_BUCKET = os.environ.get('LANCEDB_BUCKET')
+EMBEDDING_MODEL = os.environ.get('EMBEDDING_MODEL')
+EMBEDDING_SIZE = int(os.environ.get('EMBEDDING_SIZE'))
 
 
 # Initialize AWS clients
@@ -30,7 +32,7 @@ api_client = boto3.client('apigatewaymanagementapi', endpoint_url=WEBSOCKET_ENDP
 sqs_client = boto3.client('sqs')
 
 # Initialize langchain objects
-embeddings = BedrockEmbeddings(region_name=aws_region)
+embeddings = BedrockEmbeddings(region_name=aws_region, model_id=EMBEDDING_MODEL)
 splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
 
 def download_object(bucket_name, object_key, download_path):
@@ -276,7 +278,7 @@ def single_lambda_handler_create(record):
 
     schema = pa.schema(
         [
-            pa.field("vector", pa.list_(pa.float32(), 1536)),
+            pa.field("vector", pa.list_(pa.float32(), EMBEDDING_SIZE)),
             pa.field("text", pa.string()),
             pa.field("id", pa.string()),
             pa.field("source", pa.string()),
