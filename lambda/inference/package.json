@@ -7,6 +7,7 @@
     "@aws-sdk/client-ssm": "^3.598.0",
     "@aws-sdk/credential-provider-node": "^3.549.0",
     "@aws-sdk/types": "^3.535.0",
+    "@langchain/aws": "^0.0.1",
     "@langchain/community": "^0.2.4",
     "@langchain/core": "^0.2.3",
     "jsonwebtoken": "^9.0.2",

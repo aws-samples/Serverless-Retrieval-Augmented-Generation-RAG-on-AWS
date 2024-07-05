@@ -2,7 +2,7 @@ import { LanceDB }from "@langchain/community/vectorstores/lancedb";
 import { BedrockEmbeddings } from "@langchain/community/embeddings/bedrock";
 import { connect } from "vectordb"; // LanceDB
 import { PromptTemplate } from "@langchain/core/prompts";
-import { BedrockChat } from "@langchain/community/chat_models/bedrock";
+import { ChatBedrockConverse } from "@langchain/aws"
 import { StringOutputParser } from "@langchain/core/output_parsers";
 import { RunnableSequence, RunnablePassthrough } from "@langchain/core/runnables";
 import { formatDocumentsAsString } from "langchain/util/document";
@@ -15,7 +15,7 @@ const awsRegion = process.env.region;
 const stackName = process.env.stackName;
 const embeddingModel = process.env.EMBEDDING_MODEL;
 
-const runChain = async ({identityId, query, model, streamingFormat, promptOverride}, responseStream) => {
+const runChain = async ({identityId, query, model, streaming, streamingFormat, promptOverride}, responseStream) => {
 
     let db, table, vectorStore, embeddings, retriever;
 
@@ -34,6 +34,7 @@ const runChain = async ({identityId, query, model, streamingFormat, promptOverri
     console.log('identityId', identityId);
     console.log('query', query);
     console.log('model', model);
+    console.log('streaming', streaming);
     console.log('streamingFormat', streamingFormat);
   
     const ssmClient = new SSMClient({region:awsRegion});
@@ -57,10 +58,10 @@ const runChain = async ({identityId, query, model, streamingFormat, promptOverri
     noContextFooter = promptOverride.noContextFooter || noContextFooter;
     contextFooter = promptOverride.contextFooter || contextFooter;
 
-    const llmModel = new BedrockChat({
+    const llmModel = new ChatBedrockConverse({
         model: model || 'anthropic.claude-instant-v1',
         region: awsRegion,
-        streaming: true,
+        streaming: streaming,
         maxTokens: 1000,
     });
 
@@ -98,29 +99,33 @@ const runChain = async ({identityId, query, model, streamingFormat, promptOverri
     let stream;
 
     try{
-        stream = await chain.stream(query);
+        if (streaming){
+            stream = await chain.stream(query);
+            responseStream.write(`_~_${JSON.stringify(documentMetadata)}_~_\n\n`);
+            for await (const chunk of stream){
+                console.log(chunk);
+                switch (streamingFormat) {
+                    case 'fetch-event-source':
+                        responseStream.write(`event: message\n`);
+                        responseStream.write(`data: ${chunk}\n\n`);
+                        break;
+                    default:
+                        responseStream.write(chunk);
+                        break;
+                }
+            }
+        } else {
+            stream = await chain.invoke(query);
+            console.log(stream);
+            responseStream.write(stream);
+        }
     }catch(e){
         console.log(e);
         responseStream.write(`An error occurred while invoking the selected model.\n ${e.message}`);
+    }
+    finally{
         responseStream.end();
-        return;
     }
-
-    responseStream.write(`_~_${JSON.stringify(documentMetadata)}_~_\n\n`);
-    for await (const chunk of stream){
-        console.log(chunk);
-        switch (streamingFormat) {
-            case 'fetch-event-source':
-                responseStream.write(`event: message\n`);
-                responseStream.write(`data: ${chunk}\n\n`);
-                break;
-            default:
-                responseStream.write(chunk);
-                break;
-        }
-    }
-    responseStream.end();
-
   };
 
 const  parseBase64 = message => JSON.parse(Buffer.from(message, "base64").toString("utf-8"));
