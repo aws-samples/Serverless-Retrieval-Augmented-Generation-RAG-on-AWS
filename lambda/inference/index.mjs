@@ -2,20 +2,54 @@ import { LanceDB }from "@langchain/community/vectorstores/lancedb";
 import { BedrockEmbeddings } from "@langchain/community/embeddings/bedrock";
 import { connect } from "vectordb"; // LanceDB
 import { PromptTemplate } from "@langchain/core/prompts";
-import { ChatBedrockConverse } from "@langchain/aws"
+import { BedrockChat }  from "@langchain/community/chat_models/bedrock";
 import { StringOutputParser } from "@langchain/core/output_parsers";
 import { RunnableSequence, RunnablePassthrough } from "@langchain/core/runnables";
 import { formatDocumentsAsString } from "langchain/util/document";
 import { CognitoIdentityClient, GetIdCommand } from "@aws-sdk/client-cognito-identity";
 import { SSMClient, GetParameterCommand } from "@aws-sdk/client-ssm";
 import jwt from "jsonwebtoken";
-
+import {
+    BedrockClient,
+    ListFoundationModelsCommand,
+  } from "@aws-sdk/client-bedrock";
 const lanceDbSrc = process.env.s3BucketName;
 const awsRegion = process.env.region;
 const stackName = process.env.stackName;
 const embeddingModel = process.env.EMBEDDING_MODEL;
 
-const runChain = async ({identityId, query, model, streaming, streamingFormat, promptOverride}, responseStream) => {
+let foundationModels = [];
+
+const client = new BedrockClient({ region: awsRegion });
+
+const isResponseStreamingSupported = async (modelId) => {
+
+    let streaming = false;
+
+    if (foundationModels.length === 0) {
+        const command = new ListFoundationModelsCommand({});
+    
+        const response = await client.send(command);
+        const models = response.modelSummaries;
+    
+        console.log("Listing the available Bedrock foundation models:");
+    
+        foundationModels = models.filter(
+            (m) => m.modelLifecycle.status === "ACTIVE",
+        );
+    }
+
+    const modelInfo = foundationModels.filter(
+        (m) => m.modelId === modelId,
+    );
+
+    streaming = modelInfo.length == 1 ? modelInfo[0].responseStreamingSupported : false
+
+
+    return streaming;
+  };
+
+const runChain = async ({identityId, query, model, streamingFormat, promptOverride}, responseStream) => {
 
     let db, table, vectorStore, embeddings, retriever;
 
@@ -34,7 +68,6 @@ const runChain = async ({identityId, query, model, streaming, streamingFormat, p
     console.log('identityId', identityId);
     console.log('query', query);
     console.log('model', model);
-    console.log('streaming', streaming);
     console.log('streamingFormat', streamingFormat);
   
     const ssmClient = new SSMClient({region:awsRegion});
@@ -58,7 +91,20 @@ const runChain = async ({identityId, query, model, streaming, streamingFormat, p
     noContextFooter = promptOverride.noContextFooter || noContextFooter;
     contextFooter = promptOverride.contextFooter || contextFooter;
 
-    const llmModel = new ChatBedrockConverse({
+    let streaming = false;
+
+    try {
+        streaming =  await isResponseStreamingSupported(model || 'anthropic.claude-instant-v1')
+    }
+    catch (e) {
+        console.log(e);
+        responseStream.write(`An error occurred while listing foundation models.\n ${e.message}`);
+        responseStream.end();
+        return;
+    }
+    
+
+    const llmModel = new BedrockChat({
         model: model || 'anthropic.claude-instant-v1',
         region: awsRegion,
         streaming: streaming,
