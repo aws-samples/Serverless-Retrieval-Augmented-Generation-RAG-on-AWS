@@ -36,6 +36,13 @@ export function QAManager({ inferenceURL, creds, region, appConfig }) {
 
   const [models, setModels] = useState([]);
   const localStorageModel = localStorage.getItem('llm_model_id') || 'loading...';
+  let chatHistory = localStorage.getItem('chat_history') || "[]";
+  try {
+    chatHistory = JSON.parse(chatHistory);
+  } catch (error) {
+    console.log('Error parsing chat history', error);
+  }
+  
   const [model, setModel] = useState(localStorageModel);
 
   const [searching, setSearching] = useState();
@@ -111,7 +118,28 @@ export function QAManager({ inferenceURL, creds, region, appConfig }) {
     return override;
   }
 
+  const appendQuestionToHistory = question => {
+    const newQAPair = {
+      question,
+      answer: ''
+    }
+    const updatedChatHistory = [...chatHistory, newQAPair];
+    localStorage.setItem('chat_history', JSON.stringify(updatedChatHistory));
+  }
+
+  const appendResponseToLastQuestionInChatHistory = answer => {
+    const lastMessage = chatHistory.pop();
+    if(!lastMessage) return;
+    lastMessage.answer = answer;
+    chatHistory.push(lastMessage);
+    localStorage.setItem('chat_history', JSON.stringify(chatHistory));
+  }
+
   const getData = async (streaming = true) => {
+
+    results?.length > 0 && appendResponseToLastQuestionInChatHistory(results?.join(""));
+    appendQuestionToHistory(searchQuery);
+
     clearResponse();
     setSearching(true);
 
@@ -123,6 +151,7 @@ export function QAManager({ inferenceURL, creds, region, appConfig }) {
     });
 
     let apiUrl;
+    //TODO: do we need to clean this up?
     if (streaming) {
       apiUrl = new URL(inferenceURL);
     }
@@ -132,13 +161,15 @@ export function QAManager({ inferenceURL, creds, region, appConfig }) {
     }
 
     const promptOverride = getPromptOverrideObject(systemPrompt);
+    const sendHistory = `<history>${chatHistory.slice(-5).reverse().map(x => `question:${x.question}\nanswer:${x.answer}`).reduce((memo, next) => {memo += next; return memo}, "")}</history>`;
 
     const requestBody = {
       query: searchQuery,
       promptOverride,
       strategy: "rag",
       model: model,
-      idToken: creds.idToken.toString()
+      idToken: creds.idToken.toString(),
+      history: sendHistory
     }
 
     try {

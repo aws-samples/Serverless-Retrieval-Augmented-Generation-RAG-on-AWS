@@ -45,7 +45,7 @@ const isResponseStreamingSupported = async (modelId) => {
     return streaming;
   };
 
-const runChain = async ({identityId, query, model, streamingFormat, promptOverride}, responseStream) => {
+const runChain = async ({identityId, query, model, streamingFormat, promptOverride, history}, responseStream) => {
 
     let db, table, vectorStore, embeddings, retriever;
 
@@ -115,9 +115,9 @@ const runChain = async ({identityId, query, model, streamingFormat, promptOverri
     let compiledPrompt;
 
     if(!docs || docs.length === 0){
-        compiledPrompt = String(promptHeader + noContextFooter).replace('{context}', docsAsString).replace('{question}',query);
+        compiledPrompt = String(promptHeader + noContextFooter + history).replace('{context}', docsAsString).replace('{question}',query);
     }else{
-        compiledPrompt = String(promptHeader + contextFooter).replace('{context}', docsAsString).replace('{question}',query);
+        compiledPrompt = String(promptHeader + contextFooter + history).replace('{context}', docsAsString).replace('{question}',query);
     }
 
     console.log(compiledPrompt);
