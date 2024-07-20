@@ -127,7 +127,8 @@ export function QAManager({ inferenceURL, creds, region, appConfig }) {
       question,
       answer: '',
       date: new Date().toISOString(),
-      checked: false
+      checked: false,
+      model
     }
     const updatedChatHistory = [newQAPair, ...chatHistory];
     localStorage.setItem('chat_history', JSON.stringify(updatedChatHistory));

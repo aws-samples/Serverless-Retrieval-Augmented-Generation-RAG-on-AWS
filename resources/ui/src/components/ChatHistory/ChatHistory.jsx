@@ -109,7 +109,7 @@ const ChatHistoryComponent = () => {
                       handleCheckboxChange(index, detail.checked)
                     }
                   >
-                    {item.date}
+                    {item.date} via <em>{item.model ? item.model : "User Input"}</em>
                   </Checkbox>
 
                 </Box>
