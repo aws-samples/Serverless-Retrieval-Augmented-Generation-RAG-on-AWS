@@ -8,52 +8,47 @@ To learn more about this architecture, please refer to [this article](https://bi
 ## Demo
 ![Application Demo](./assets/fsrag-demo.gif)
 
+## Features
+
+### Chat Playground
+Interact with LLMs and inspect retrieved documents.
+
+### Chat History Management
+Manage your chat history, select which messages are to be forwarded or add messages to test and debug your prompts.
+
+### Serverless Knowledge Base
+This sample makes use of LanceDB and S3 as vector database. With this configuration, you'll only pay for the storage you use and you won't have to manage additional infrastructure.
+
+### Dynamic Prompt Management
+
+Users can override the default system prompt by specifying new prompts in the settings.
+![Dynamic Prompt Management via Front-end application](assets/fsrag-dynamic-prompting.gif)
+
+#### Changing the Default Prompt Dynamically
+
+To change the default prompt dynamically for all users, follow these steps:
+
+1. Open the [`prompt-templates.yml`](https://github.com/aws-samples/Serverless-Retrieval-Augmented-Generation-RAG-on-AWS/blob/main/lib/prompt-templates.yml) file.
+2. Update the prompt templates as per your requirements.
+3. Save the changes.
+4. Run the [`update-default-prompt-templates.ts`](https://github.com/aws-samples/Serverless-Retrieval-Augmented-Generation-RAG-on-AWS/blob/main/update-default-prompt-templates.ts) script using the following command:
+
+```sh
+npx ts-node update-default-prompt-templates.ts
+```
+
+**WARNING:** Depending on your setup, you may need to change the region or profile in the script or pass it through the environment variables.
+
+
 ## Prerequisites
 
-- NodeJS >= v18.18.2
+- NodeJS >= v18.18.2 and NVM for node version management
 - Docker
 - AWS Cloud Development Kit (CDK) cli >= 2.142.1
 
-## Installation
+## Config
 
-```sh
-nvm use # makes use of node 18
-npm install
-```
-
-### Deploy
-
-* For greater access to LLMs (at the time of writing), deploy the stack in the `us-west-2` region.
-
-```sh
-cdk deploy
-```
-
-You should have a list of outputs in your console, similar to the following
-
-```bash
-Outputs:
-LanceDbRagStack.FrontendConfigS3Path = s3://lancedbragstack-frontendbucketxxxxx-xxxx/appconfig.json
-LanceDbRagStack.WebDistributionName = https://dxxxxxxxxxx.cloudfront.net
-LanceDbRagStack.allowUnauthenticatedIdentities = true
-LanceDbRagStack.authRegion = us-west-2
-LanceDbRagStack.identityPoolId = us-west-2:xxxxxxxxxxxxxx
-LanceDbRagStack.passwordPolicyMinLength = 8
-LanceDbRagStack.passwordPolicyRequirements = ["REQUIRES_NUMBERS","REQUIRES_LOWERCASE","REQUIRES_UPPERCASE","REQUIRES_SYMBOLS"]
-LanceDbRagStack.signupAttributes = ["email"]
-LanceDbRagStack.userPoolId = us-west-2_xxxxxxxxxx
-LanceDbRagStack.usernameAttributes = ["email"]
-LanceDbRagStack.verificationMechanisms = ["email"]
-LanceDbRagStack.webClientId = xxxxxxxxxxxxx
-Stack ARN:
-arn:aws:cloudformation:us-west-2:ACCOUNT_NUMBER:stack/LanceDbRagStack/XXXXXXXXXXXXXXXXXXXX
-```
-
-### Test
-You'll find the URL of your application as the stack output named `LanceDbRagStack.WebDistributionName`.  
-It looks something like `https://dxxxxxxxxxxx.cloudfront.net`
-
-## Supported Regions
+### Supported Regions
 This sample only supports regions where Bedrock is available and at least one Embedding model is present. As of July 2024, this sample supports
 ```
 us-east-1
@@ -68,11 +63,11 @@ ap-northeast-1
 ca-central-1
 sa-east-1
 ```
-
+### Embedding Configuration
 You can switch the default embedding model by changing the config file at `lib/llm-config.json`.  
 Once the sample is deployed you should NOT switch the embedding model. Changing it may lead to errors or unexpected results in your semantic search.
 
-### Sample Configuration
+#### Sample Configuration
 ```json
 {
     "us-west-2":{
@@ -84,12 +79,48 @@ Once the sample is deployed you should NOT switch the embedding model. Changing 
 ...
 }
 ```
-### Dynamic Prompt Management
 
-Users can override the default system prompt by specifying new prompts in the settings.
-![Dynamic Prompt Management via Front-end application](assets/fsrag-dynamic-prompting.gif)
+## Installation
 
-## Running locally
+```sh
+nvm use # makes use of node 18
+npm install
+```
+
+## Deploy
+
+* For greater access to LLMs (at the time of writing), deploy the stack in the `us-west-2` region.
+* Deploying for the first time should take around 20 minutes (depending on your upload speed)
+
+```sh
+cdk deploy
+```
+
+After a successful deployment, you should have a list of outputs in your console, similar to the following
+
+```bash
+Outputs:
+ServerlessRagOnAwsStack.FrontendConfigS3Path = s3://ServerlessRagOnAwsStack-frontendbucketxxxxx-xxxx/appconfig.json
+ServerlessRagOnAwsStack.WebDistributionName = https://dxxxxxxxxxx.cloudfront.net
+ServerlessRagOnAwsStack.allowUnauthenticatedIdentities = true
+ServerlessRagOnAwsStack.authRegion = us-west-2
+ServerlessRagOnAwsStack.identityPoolId = us-west-2:xxxxxxxxxxxxxx
+ServerlessRagOnAwsStack.passwordPolicyMinLength = 8
+ServerlessRagOnAwsStack.passwordPolicyRequirements = ["REQUIRES_NUMBERS","REQUIRES_LOWERCASE","REQUIRES_UPPERCASE","REQUIRES_SYMBOLS"]
+ServerlessRagOnAwsStack.signupAttributes = ["email"]
+ServerlessRagOnAwsStack.userPoolId = us-west-2_xxxxxxxxxx
+ServerlessRagOnAwsStack.usernameAttributes = ["email"]
+ServerlessRagOnAwsStack.verificationMechanisms = ["email"]
+ServerlessRagOnAwsStack.webClientId = xxxxxxxxxxxxx
+Stack ARN:
+arn:aws:cloudformation:us-west-2:ACCOUNT_NUMBER:stack/ServerlessRagOnAwsStack/XXXXXXXXXXXXXXXXXXXX
+```
+
+## Test
+You'll find the URL of your application as the stack output named `ServerlessRagOnAwsStack.WebDistributionName`.  
+It looks something like `https://dxxxxxxxxxxx.cloudfront.net`
+
+## Running the front-end locally
 
 You can run this vite react app locally following these steps.
 
@@ -101,7 +132,7 @@ Follow [instructions above](#installation) to deploy the cdk app.
 
 Run the script 
 ```bash
-./fetch-frontend-config.sh LanceDbRagStack
+./fetch-frontend-config.sh ServerlessRagOnAwsStack
 ```
 
 This will copy the file `appconfig.json` into `./resources/ui/public/` from the bucket where the front-end is hosted.  
@@ -111,7 +142,7 @@ You can modify it to point it to an alternative backend stack for development pu
 Alternatively, run the following command and replace the placeholders with values taken from the stack's output
 
 ```bash
-aws s3 cp ${LanceDbRagStack.FrontendConfigS3Path} ./resources/ui/public/
+aws s3 cp ${ServerlessRagOnAwsStack.FrontendConfigS3Path} ./resources/ui/public/
 ```
 
 #### Example Configuration File
@@ -119,9 +150,9 @@ aws s3 cp ${LanceDbRagStack.FrontendConfigS3Path} ./resources/ui/public/
 {
     "inferenceURL": "https://xxxxxxxxxxxxx.lambda-url.us-west-2.on.aws/",
     "websocketURL": "wss://xxxxxxxxxx.execute-api.us-west-2.amazonaws.com/Prod",
-    "websocketStateTable": "LanceDbRagStack-websocketStateTable-xxxxxxxx",
+    "websocketStateTable": "ServerlessRagOnAwsStack-websocketStateTable-xxxxxxxx",
     "region": "us-west-2",
-    "bucketName": "lancedbragstack-documentsbucket-xxxxxxxxx",
+    "bucketName": "ServerlessRagOnAwsStack-documentsbucket-xxxxxxxxx",
     "auth": {
         "user_pool_id": "us-west-2_XXXXXXXXXX",
         "aws_region": "us-west-2",
@@ -147,7 +178,7 @@ aws s3 cp ${LanceDbRagStack.FrontendConfigS3Path} ./resources/ui/public/
     },
     "version": "1",
     "storage": {
-        "bucket_name": "lancedbragstack-documentsbucket-XXXXXXXXXXX",
+        "bucket_name": "ServerlessRagOnAwsStack-documentsbucket-XXXXXXXXXXX",
         "aws_region": "us-west-2"
     }
 }

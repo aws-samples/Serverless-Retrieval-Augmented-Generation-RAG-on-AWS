@@ -18,6 +18,7 @@ import WebSocketManager from './components/WebSocketManager';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Settings from "./components/Settings/Settings.jsx";
+import ChatHistory from "./components/ChatHistory/ChatHistory.jsx";
 
 export default function AppConfigured() {
   const { tokens } = useTheme();
@@ -117,6 +118,7 @@ export default function AppConfigured() {
                 <Route path="/" element={ <App  appConfig={config}/>} />
                 <Route path="/Documents" element={ <Documents appConfig={config}/>} />
                 <Route path="/Settings" element={ <Settings appConfig={config}/>} />
+                <Route path="/ChatHistory" element={ <ChatHistory appConfig={config}/>} />
               </Routes>
             }
           />

@@ -4,7 +4,13 @@ import App from '../../App.jsx'
 const routes = [
   {
     routePath: "/",
-    title: "Chat",
+    title: "Chat Playground",
+    show: true,
+    main: () => <div />,
+  },
+  {
+    routePath: "/ChatHistory",
+    title: "Chat History",
     show: true,
     main: () => <div />,
   },
@@ -16,7 +22,7 @@ const routes = [
   },
   {
     routePath: "/Settings",
-    title: "Settings",
+    title: "System Prompt Settings",
     show: true,
     main: () => <div />,
   }

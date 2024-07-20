@@ -15,11 +15,12 @@ promptHeader: |
 noContextFooter: |
   Unfortunately no context was retrieved for this query. You should answer to the best of your capabilites,
   but you should warn the user that no context was found. In your response, suggest the user to upload documents
-  so that you can reply with a factual answer.
+  so that you can reply with a factual answer. 
+  You can use the block <history> to remember details about our previous conversations.
+  DO NOT answer with anything other than the markdown output, and do not include the <question> or <context> within your answer and do not make up your own markdown elements. 
+  <context> {context} </context>
 contextFooter: |
   Base your answers on the context provided in the following context block.
-  DO NOT answer with anything other than the markdown output,
-  and do not include the <question> or <context> within your answer and do not make up your own markdown elements.
-  <context>
-  {context}
-  </context>
+  Use the block <history> to remember details about our previous conversations.
+  DO NOT answer with anything other than the markdown output, and do not include the <question> or <context> within your answer and do not make up your own markdown elements. 
+  <context> {context} </context> 
