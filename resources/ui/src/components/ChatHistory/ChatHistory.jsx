@@ -83,6 +83,16 @@ const ChatHistoryComponent = () => {
     localStorage.setItem('chat_history', JSON.stringify(updatedHistory));
   };
 
+  const downloadHistory = () => {
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(chatHistory, null, 2));
+    const downloadAnchorNode = document.createElement('a');
+    downloadAnchorNode.setAttribute("href", dataStr);
+    downloadAnchorNode.setAttribute("download", "chat_history.json");
+    document.body.appendChild(downloadAnchorNode);
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
+  };
+
   return (
     <Container header={<Header variant="h1">Manage Chat History</Header>}>
       <ul>
@@ -97,6 +107,11 @@ const ChatHistoryComponent = () => {
             <Box>
               <Button onClick={() => handleSelectAll(true)}>Select All</Button>
               <Button onClick={() => handleSelectAll(false)}>Deselect All</Button>
+              {
+              chatHistory?.length > 0? 
+                <Button onClick={() => downloadHistory()}>Download History</Button> 
+                : null
+              }
             </Box>
           </Box>
           {displayedItems.map((item, index) => (
