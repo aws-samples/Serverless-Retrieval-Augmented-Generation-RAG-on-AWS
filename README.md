@@ -206,6 +206,16 @@ npx ts-node update-default-prompt-templates.ts
 
 **WARNING:** Depending on your setup, you may need to change the region or profile in the script or pass it through the environment variables.
 
+## Other Resources
+
+### Video Demo on ServerlessLand (Twitch / YouTube / LinkedIn)
+[![Serverless RAG on Serverlessland!](https://img.youtube.com/vi/uBGpi1RWPQ0/0.jpg)](https://www.youtube.com/live/uBGpi1RWPQ0?si=WjxARe5baZZfzlGf&t=3113)
+
+### Build and Monetize your GenAI MVP @ Let's Build a Startup (Twitch)
+
+<a href="https://bit.ly/4bpKUeT" target="_blank"><img src="https://community.aws/_next/image?url=https%3A%2F%2Fassets.community.aws%2Fa%2F2ieSsqVt4xA3eeGwPke9WCGzjkT%2FDALL-.webp%3FimgSize%3D1024x1024&w=2048&q=75" height="300px" /></a>
+
+
 ## Authors
 
 **Giuseppe Battista** is a Senior Solutions Architect at Amazon Web Services. He leads soultions architecture for Early Stage Startups in UK and Ireland. He hosts the Twitch Show "Let's Build a Startup" on [twitch.tv/aws](https://bit.ly/basup-twitch) and he's head of Unicorn's Den accelerator.   
