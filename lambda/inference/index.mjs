@@ -124,14 +124,14 @@ const runChain = async ({identityId, query, model, streamingFormat, promptOverri
     if(!docs || docs.length === 0){
 
         compiledPrompt = String(
-            promptHeader + noContextFooter + history
+            promptHeader + noContextFooter
         )
         .replace('{context}', docsAsString)
         .replace('{question}',query);
 
     }else{
         compiledPrompt = String(
-            promptHeader + contextFooter + history
+            promptHeader + contextFooter
         )
         .replace('{context}', docsAsString)
         .replace('{question}',query);
@@ -140,6 +140,7 @@ const runChain = async ({identityId, query, model, streamingFormat, promptOverri
     console.log(compiledPrompt);
 
     const conversation = [
+        ...history,
         {
           role: "user",
           content: [{ text: compiledPrompt }],

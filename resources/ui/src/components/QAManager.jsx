@@ -143,6 +143,21 @@ export function QAManager({ inferenceURL, creds, region, appConfig }) {
     localStorage.setItem('chat_history', JSON.stringify(chatHistory));
   }
 
+  const getHistoryForConverseAPI = () => {
+    const transformedHistory = [];
+    for (const message of chatHistory.filter( item => item.checked)) {
+      transformedHistory.push({
+        role: "user",
+        content: [{ text: message.question }]
+      });
+      transformedHistory.push({
+        role: "assistant",
+        content: [{ text: message.answer }]
+      });
+    }
+    return transformedHistory;
+  }
+
   const getData = async (streaming = true) => {
 
     
@@ -169,23 +184,13 @@ export function QAManager({ inferenceURL, creds, region, appConfig }) {
 
     const promptOverride = getPromptOverrideObject(systemPrompt);
 
-    const compiledHistory = `<history>
-      ${
-        chatHistory
-          .filter(x => x.checked)
-          .map(
-            x => `question:${x.question}\nanswer:${x.answer}\n`
-          ).join("")
-      }
-    </history>`;
-
     const requestBody = {
       query: searchQuery,
       promptOverride,
       strategy: "rag",
       model: model,
       idToken: creds.idToken.toString(),
-      history: compiledHistory
+      history: getHistoryForConverseAPI()
     };
 
     console.log(requestBody);
