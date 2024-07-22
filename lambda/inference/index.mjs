@@ -45,10 +45,12 @@ const isResponseStreamingSupported = async (modelId) => {
     return streaming;
   };
 
-const runChain = async ({identityId, query, model, streamingFormat, promptOverride}, responseStream) => {
+const runChain = async ({identityId, query, model, streamingFormat, promptOverride, history}, responseStream) => {
 
     let db, table, vectorStore, embeddings, retriever;
 
+    // if it cannot establish connection to a LanceDB table, the user's knowledge base is empty
+    // treat this as non-fatal error and no context will be provided to the LLM.
     try{
     
         db = await connect(`s3://${lanceDbSrc}/embeddings/${identityId}`);
@@ -66,8 +68,11 @@ const runChain = async ({identityId, query, model, streamingFormat, promptOverri
     console.log('model', model);
     console.log('streamingFormat', streamingFormat);
   
+    // TODO: should we initailize this outside and pass it a as a dependency?
     const ssmClient = new SSMClient({region:awsRegion});
 
+    // try to fetch defalut system prompts
+    // if no default prompts are found, treat it as a fatal error
     let promptHeader, noContextFooter, contextFooter;
     try {
         [promptHeader, noContextFooter, contextFooter] = await Promise.all([
@@ -82,6 +87,7 @@ const runChain = async ({identityId, query, model, streamingFormat, promptOverri
         return;
     }
 
+    // load user overrides
     // if a user override is present, honour it
     promptHeader = promptOverride.promptHeader || promptHeader;
     noContextFooter = promptOverride.noContextFooter || noContextFooter;
@@ -101,6 +107,7 @@ const runChain = async ({identityId, query, model, streamingFormat, promptOverri
 
     let docs, docsAsString, documentMetadata;
 
+    // if no documents are found, treat it as a non-fatal error
     try{
         docs = await retriever.invoke(query);
         docsAsString = formatDocumentsAsString(docs);
@@ -115,14 +122,25 @@ const runChain = async ({identityId, query, model, streamingFormat, promptOverri
     let compiledPrompt;
 
     if(!docs || docs.length === 0){
-        compiledPrompt = String(promptHeader + noContextFooter).replace('{context}', docsAsString).replace('{question}',query);
+
+        compiledPrompt = String(
+            promptHeader + noContextFooter
+        )
+        .replace('{context}', docsAsString)
+        .replace('{question}',query);
+
     }else{
-        compiledPrompt = String(promptHeader + contextFooter).replace('{context}', docsAsString).replace('{question}',query);
+        compiledPrompt = String(
+            promptHeader + contextFooter
+        )
+        .replace('{context}', docsAsString)
+        .replace('{question}',query);
     }
 
     console.log(compiledPrompt);
 
     const conversation = [
+        ...history,
         {
           role: "user",
           content: [{ text: compiledPrompt }],
@@ -131,7 +149,8 @@ const runChain = async ({identityId, query, model, streamingFormat, promptOverri
     
     let stream;
 
-    try{            
+    try{         
+        // sending metadata as first part of the response surrounded by the sequence _~_ for front-end parsing   
         responseStream.write(`_~_${JSON.stringify(documentMetadata)}_~_\n\n`);
 
         if (streaming){
