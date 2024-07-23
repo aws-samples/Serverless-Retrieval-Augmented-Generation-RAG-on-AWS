@@ -20,4 +20,4 @@ if (!supportedRegions.includes(region)) {
 const {embedding} = regionalConfigs[region];
 
 const app = new cdk.App();
-new ServerlessRagOnAws(app, 'ServerlessRagOnAwsStack', {embedding});
+new ServerlessRagOnAws(app, 'ServerlessRagOnAwsStack', {description: 'Serverless RAG on AWS (uksb-qka8vxvash)', embedding});
