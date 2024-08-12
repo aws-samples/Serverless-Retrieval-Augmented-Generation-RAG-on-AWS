@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "@aws-amplify/auth-construct": "^1.1.2",
-    "@aws-sdk/client-bedrock": "^3.583.0",
+    "@aws-sdk/client-bedrock": "^3.624.0",
     "aws-cdk-lib": "2.142.1",
     "aws-sdk": "^2.1642.0",
     "constructs": "^10.0.0",
